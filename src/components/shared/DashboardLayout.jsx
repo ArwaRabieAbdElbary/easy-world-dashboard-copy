@@ -84,7 +84,7 @@ const Sidebar = ({ mobile = false, onClose, onLogout }) => (
       <button
         onClick={onLogout}
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-          text-red-500 hover:bg-red-50 transition-all"
+          text-red-500 hover:bg-red-50 transition-all cursor-pointer"
       >
         <span className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
           <LogOut size={16} className="text-red-500" />
