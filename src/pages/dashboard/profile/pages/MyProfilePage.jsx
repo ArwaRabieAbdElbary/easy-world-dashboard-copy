@@ -2,8 +2,8 @@
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Mail, Phone, Shield, Calendar, CheckCircle, XCircle, Camera } from "lucide-react";
-import api from "../../services/api";
-import PageHeader from "../../components/shared/PageHeader";
+import api from "../../../../services/api";
+import PageHeader from "../../../../components/shared/PageHeader";
 
 /* ── Info Card ── */
 const InfoCard = ({ icon: Icon, label, value, verified }) => (
@@ -86,7 +86,7 @@ const MyProfilePage = () => {
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
 
         {/* Banner */}
-        <div className="h-28 bg-gradient-to-r from-primary-400 via-primary-500 to-primary-300 relative shrink-0">
+        <div className="h-28 bg-linear-to-r from-primary-400 via-primary-500 to-primary-300 relative shrink-0">
           <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
