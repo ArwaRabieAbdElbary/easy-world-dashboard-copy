@@ -66,9 +66,10 @@ const StoreTypeDetailsPage = () => {
 
   const toggleStatusMutation = useMutation({
     mutationFn: async () => {
-      const res = await api.patch(`/dashboard/store-types/${id}/active`, {}, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await api.patch(`/dashboard/store-types/${id}/active`, 
+        { isActive: !data?.isActive },
+        { headers: { "Content-Type": "application/json" } }
+      );
       return res.data.data;
     },
     onSuccess: (newData) => {
