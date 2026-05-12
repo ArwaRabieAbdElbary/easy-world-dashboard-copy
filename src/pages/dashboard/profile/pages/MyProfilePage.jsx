@@ -2,8 +2,8 @@
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Mail, Phone, Shield, Calendar, CheckCircle, XCircle, Camera } from "lucide-react";
-import api from "../../services/api";
-import PageHeader from "../../components/shared/PageHeader";
+import api from "../../../../services/api";
+import PageHeader from "../../../../components/shared/PageHeader";
 
 /* ── Info Card ── */
 const InfoCard = ({ icon: Icon, label, value, verified }) => (
