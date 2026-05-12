@@ -14,6 +14,8 @@ const navItems = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/dashboard/profile", label: "My Profile", icon: UserCircle },
   { to: "/dashboard/users", label: "My Users", icon: Users },
+  { to: "/dashboard/store-types", label: "Store Types", icon: Users },
+
 ];
 
 const Sidebar = ({ mobile = false, onClose, onLogout }) => (
