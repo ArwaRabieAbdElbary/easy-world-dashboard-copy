@@ -10,6 +10,9 @@ import UserDetailsPage from "./src/pages/dashboard/users/pages/UserDetailsPage";
 import MyProfilePage from "./src/pages/dashboard/profile/pages/MyProfilePage";
 import StoreTypesPage from "./src/pages/dashboard/store/pages/StoreTypesPage";
 import StoreTypeDetailsPage from "./src/pages/dashboard/store/pages/StoreTypeDetailsPage";
+import StoresPage from "./src/pages/dashboard/store/pages/StoresPage";
+import StoreDetailsPage from "./src/pages/dashboard/store/pages/StoreDetailsPage";
+import VendorsPage from "./src/pages/dashboard/vendors/VendorsPage";
 
 
 export const router = createBrowserRouter([
@@ -61,6 +64,21 @@ export const router = createBrowserRouter([
       {
         path:"store-types/:id",
         element: <StoreTypeDetailsPage />
+      }
+      ,{
+        path:"stores",
+        element: <StoresPage />
+      },
+      {
+        path:"stores/:id",
+        element: <StoreDetailsPage />
+      },
+      {
+        path: "vendors",
+        element:<VendorsPage />
+      },
+      {
+        path:"vendors/:id",
       }
     ],
   },

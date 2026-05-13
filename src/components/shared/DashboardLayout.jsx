@@ -15,6 +15,8 @@ const navItems = [
   { to: "/dashboard/profile", label: "My Profile", icon: UserCircle },
   { to: "/dashboard/users", label: "My Users", icon: Users },
   { to: "/dashboard/store-types", label: "Store Types", icon: Users },
+  { to: "/dashboard/stores", label: "Stores", icon: Users },
+  { to: "/dashboard/vendors", label: "Vendors", icon: Users },
 
 ];
 
