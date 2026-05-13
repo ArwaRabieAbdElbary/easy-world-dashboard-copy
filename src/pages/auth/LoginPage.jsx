@@ -29,7 +29,8 @@ const LoginPage = () => {
     },
 
     onError: (error) => {
-      console.log(error);
+      console.log("Full error:", error);
+      console.log("Response data:", error?.response?.data);
     },
   });
 
@@ -192,13 +193,16 @@ const LoginPage = () => {
             </div>
 
             {/* api error */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <p className="text-red-600 text-sm">
-                  {error?.response?.data?.message}
-                </p>
-              </div>
-            )}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              <p className="text-red-600 text-sm">
+                {error?.response?.data?.message || 
+                error?.response?.data?.error ||
+                error?.message ||
+                "Invalid email or password. Please try again."}
+              </p>
+            </div>
+          )}
 
             {/* submit */}
             <button
