@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Store, BadgeCheck, BadgeX, Layers3, ArrowUpDown, Trash2 } from "lucide-react";
+import { Store, BadgeCheck, BadgeX, Layers3, ArrowUpDown, Trash2, Upload } from "lucide-react";
 
 import api from "../../../../services/api";
 import { useState } from "react";
@@ -96,11 +96,14 @@ const StoreTypesPage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [sortOrder, setSortOrder] = useState(1);
   const [isActive, setIsActive] = useState(true);
   const [iconFile, setIconFile] = useState(null);
+  const [nameDefault, setNameDefault] = useState("");
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [errors, setErrors] = useState({});
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -108,22 +111,36 @@ const StoreTypesPage = () => {
   const createStoreTypeMutation = useMutation({
     mutationFn: async (data) => {
       const formData = new FormData();
-      formData.append("nameDefault", data.name);
+      formData.append("nameDefault", data.nameDefault);
+      formData.append("nameAr", data.nameAr);
+      formData.append("nameEn", data.nameEn);
       formData.append("code", data.code);
-      formData.append("sortOrder", data.sortOrder);
-      formData.append("isActive", data.isActive);
-      if (data.iconFile) formData.append("iconPath", data.iconFile);
+      formData.append("sortOrder", String(data.sortOrder));
+      formData.append("isActive", String(data.isActive));
+      if (data.iconFile) {
+        formData.append("icon", data.iconFile);
+      }
       return await api.post("/dashboard/store-types", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store-types"] });
-      setName(""); setCode(""); setSortOrder(1); setIsActive(true); setIconFile(null);
+      setNameDefault("");
+      setNameAr("");
+      setNameEn("");
+      setCode("");
+      setSortOrder(1);
+      setIsActive(true);
+      setIconFile(null);
+      setErrors({});
       toast.success("Store type created");
       setOpenModal(false);
     },
-    onError: () => toast.error("Something went wrong"),
+    onError: (error) => {
+      console.log(error.response?.data);
+      toast.error("Something went wrong");
+    },
   });
 
   const deleteStoreTypeMutation = useMutation({
@@ -155,68 +172,161 @@ const StoreTypesPage = () => {
         </button>
       </div>
 
-      {/* Create Modal */}
+      {/* ══════════════════════════════════════
+          Create Modal — compact 2-col layout
+      ══════════════════════════════════════ */}
       {openModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpenModal(false)}
+            onClick={() => { setOpenModal(false); setErrors({}); }}
           />
-          <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
             <h2 className="text-2xl font-black text-gray-900 mb-1">Add Store Type</h2>
-            <p className="text-sm text-gray-400 mb-6">Create a new store category</p>
+            <p className="text-sm text-gray-400 mb-5">Create a new store category</p>
 
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+            {/* Name Default — full width */}
+            <div className="mb-3">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Name Default *
+              </label>
               <input
-                type="text" value={name} onChange={(e) => setName(e.target.value)}
+                required
+                type="text"
+                value={nameDefault}
+                onChange={(e) => {
+                  setNameDefault(e.target.value);
+                  setErrors((prev) => ({ ...prev, nameDefault: undefined }));
+                }}
                 placeholder="Restaurant"
-                className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className={`w-full h-11 rounded-2xl border px-4 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-primary-400
+                  ${errors.nameDefault ? "border-red-400 bg-red-50" : "border-gray-200"}`}
               />
+              {errors.nameDefault && (
+                <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.nameDefault}</p>
+              )}
             </div>
 
+            {/* Arabic + English — side by side */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Name Arabic
+                </label>
+                <input
+                  type="text"
+                  value={nameAr}
+                  onChange={(e) => setNameAr(e.target.value)}
+                  placeholder="مطعم"
+                  dir="rtl"
+                  className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm
+                    focus:outline-none focus:ring-2 focus:ring-primary-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Name English
+                </label>
+                <input
+                  type="text"
+                  value={nameEn}
+                  onChange={(e) => setNameEn(e.target.value)}
+                  placeholder="Restaurant"
+                  className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm
+                    focus:outline-none focus:ring-2 focus:ring-primary-400"
+                />
+              </div>
+            </div>
+
+            {/* Code + Sort Order — side by side */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Code *</label>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => {
+                    setCode(e.target.value);
+                    setErrors((prev) => ({ ...prev, code: undefined }));
+                  }}
+                  placeholder="restaurant"
+                  required
+                  className={`w-full h-11 rounded-2xl border px-4 text-sm
+                    focus:outline-none focus:ring-2 focus:ring-primary-400
+                    ${errors.code ? "border-red-400 bg-red-50" : "border-gray-200"}`}
+                />
+                {errors.code && (
+                  <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.code}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Sort Order</label>
+                <input
+                  type="number"
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(Number(e.target.value))}
+                  placeholder="1"
+                  className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm
+                    focus:outline-none focus:ring-2 focus:ring-primary-400"
+                />
+              </div>
+            </div>
+
+            {/* Icon — styled upload area */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Code</label>
-              <input
-                type="text" value={code} onChange={(e) => setCode(e.target.value)}
-                placeholder="restaurant"
-                className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Icon</label>
+              <label className={`flex items-center gap-3 w-full rounded-2xl border border-dashed
+                px-4 py-3 cursor-pointer transition
+                ${errors.iconFile ? "border-red-400 bg-red-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}>
+                <Upload size={16} className="text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-400 truncate">
+                  {iconFile ? iconFile.name : "Click to upload image"}
+                </span>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const allowed = ["image/jpeg", "image/png", "image/webp"];
+                    const ext = file.name.split(".").pop().toLowerCase();
+                    const allowedExts = ["jpg", "jpeg", "png", "webp"];
+                    if (!allowed.includes(file.type) || !allowedExts.includes(ext)) {
+                      setErrors((prev) => ({ ...prev, iconFile: "Only jpg, jpeg, png, and webp images are allowed" }));
+                      e.target.value = "";
+                      return;
+                    }
+                    setErrors((prev) => ({ ...prev, iconFile: undefined }));
+                    setIconFile(file);
+                  }}
+                />
+              </label>
+              {errors.iconFile && (
+                <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.iconFile}</p>
+              )}
             </div>
 
-            <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Sort Order</label>
-              <input
-                type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))}
-                placeholder="1"
-                className="w-full h-11 rounded-2xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              />
-            </div>
-
-            <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Icon</label>
-              <input
-                type="file" accept="image/*" onChange={(e) => setIconFile(e.target.files[0])}
-                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              />
-            </div>
-
-            <div className="mb-6 flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3">
+            {/* Active toggle */}
+            <div className="mb-5 flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-gray-800">Active Status</p>
                 <p className="text-xs text-gray-400">Enable this store type</p>
               </div>
               <button
-                type="button" onClick={() => setIsActive(!isActive)}
+                type="button"
+                onClick={() => setIsActive(!isActive)}
                 className={`relative w-14 h-8 rounded-full transition-all ${isActive ? "bg-primary-500" : "bg-gray-300"}`}
               >
                 <span className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${isActive ? "right-1" : "left-1"}`} />
               </button>
             </div>
 
+            {/* Actions */}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setOpenModal(false)}
+                onClick={() => { setOpenModal(false); setErrors({}); }}
                 className="flex-1 h-11 rounded-2xl bg-gray-100 text-sm font-semibold text-gray-600 hover:bg-gray-200 transition"
               >
                 Cancel
@@ -224,15 +334,32 @@ const StoreTypesPage = () => {
               <button
                 disabled={createStoreTypeMutation.isPending}
                 onClick={() => {
-                  if (name.trim().length < 2) { toast.error("Name must be at least 2 characters"); return; }
-                  createStoreTypeMutation.mutate({ name, code, sortOrder, isActive, iconFile });
+                  const newErrors = {};
+                  if (nameDefault.trim().length === 0) {
+                    newErrors.nameDefault = "This field is required";
+                  } else if (nameDefault.trim().length < 2) {
+                    newErrors.nameDefault = "Minimum 2 characters";
+                  }
+                  if (code.trim().length === 0) {
+                    newErrors.code = "This field is required";
+                  } else if (code.trim().length < 2) {
+                    newErrors.code = "Minimum 2 characters";
+                  }
+                  if (Object.keys(newErrors).length > 0 || errors.iconFile) {
+                    setErrors((prev) => ({ ...prev, ...newErrors }));
+                    return;
+                  }
+                  createStoreTypeMutation.mutate({ nameDefault, nameAr, nameEn, code, sortOrder, isActive, iconFile });
                 }}
                 className="flex-1 h-11 rounded-2xl bg-primary-500 hover:bg-primary-600
                   text-sm font-semibold text-white shadow-lg shadow-primary-200 transition
                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {createStoreTypeMutation.isPending ? (
-                  <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Creating...</>
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating...
+                  </>
                 ) : "Create"}
               </button>
             </div>
@@ -332,7 +459,6 @@ const StoreTypesPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Delete button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -345,7 +471,6 @@ const StoreTypesPage = () => {
                       <Trash2 size={15} className="text-red-500 group-hover/del:text-white transition-colors" />
                     </button>
 
-                    {/* Manage button */}
                     <button
                       onClick={() => navigate(`/dashboard/store-types/${type.id}`)}
                       className="h-9 px-4 rounded-xl bg-gray-100 hover:bg-primary-500
